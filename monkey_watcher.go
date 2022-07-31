@@ -42,11 +42,11 @@ type SlackApiConnectionOpenResponse struct {
 	URL string `json:"url"`
 }
 
-func SlackApiChatPostMessage(message string, channel string) {
+func SlackApiChatPostMessage(message string, channel string, color string) {
 	client := &http.Client{}
 	formdata := url.Values{}
 	formdata.Set("channel", channel)
-	formdata.Set("text", message)
+	formdata.Set("attachments", `[{"text": "`+message+`", "color": "`+color+`"}]`)
 
 	req, err := http.NewRequest("POST", "https://slack.com/api/chat.postMessage", strings.NewReader(formdata.Encode()))
 	if err != nil {
@@ -93,28 +93,32 @@ func main() {
 func myTrapHandler(packet *gosnmp.SnmpPacket, addr *net.UDPAddr) {
 	var status string
 	var ap string
+	var color string
 	for _, v := range packet.Variables {
-		if v.Name == ".1.3.6.1.6.3.1.1.4.1.0" {
+		switch v.Name {
+		case ".1.3.6.1.6.3.1.1.4.1.0":
 			switch v.Value {
 			case ".1.3.6.1.4.1.9.9.513.0.4":
-				status = "✨ AP UP ✨"
+				status = "✨ AP UP ✨\n"
+				color = "good"
 			case ".1.3.6.1.4.1.14179.2.6.3.8":
-				status = "💀 AP DOWN 💀"
+				status = "💀 AP DOWN 💀\n"
+				color = "danger"
 			default:
 			}
-		}
-		switch v.Name {
+
 		case ".1.3.6.1.4.1.9.9.513.1.1.1.1.5.248.11.203.241.185.208":
-			ap = string(v.Value.([]uint8))
 			// online
+			ap = string(v.Value.([]uint8))
 
 		case ".1.3.6.1.4.1.14179.2.2.1.1.3.0":
-			ap = string(v.Value.([]uint8))
 			// offline
+			ap = string(v.Value.([]uint8))
+
 		default:
 		}
 	}
 	if status != "" {
-		SlackApiChatPostMessage(status+ap, *channel)
+		SlackApiChatPostMessage(status+ap, *channel, color)
 	}
 }
