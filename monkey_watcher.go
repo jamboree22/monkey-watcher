@@ -107,15 +107,16 @@ func myTrapHandler(packet *gosnmp.SnmpPacket, addr *net.UDPAddr) {
 			default:
 			}
 
-		case ".1.3.6.1.4.1.9.9.513.1.1.1.1.5.248.11.203.241.185.208":
-			// online
-			ap = string(v.Value.([]uint8))
-
 		case ".1.3.6.1.4.1.14179.2.2.1.1.3.0":
 			// offline
 			ap = string(v.Value.([]uint8))
 
 		default:
+			if strings.HasPrefix(v.Name, ".1.3.6.1.4.1.9.9.513.1.1.1.1.5.") {
+				// online
+				ap = string(v.Value.([]uint8))
+			}
+			log.Printf("trap: %+v\n", v)
 		}
 	}
 	if status != "" {
