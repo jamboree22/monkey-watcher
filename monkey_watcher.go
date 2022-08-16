@@ -37,11 +37,6 @@ type SlackApiChatPostMessageResponse struct {
 	} `json:"message,omitempty"`
 }
 
-type SlackApiConnectionOpenResponse struct {
-	Ok  bool   `json:"ok"`
-	URL string `json:"url"`
-}
-
 func SlackApiChatPostMessage(message string, channel string, color string) {
 	client := &http.Client{}
 	formdata := url.Values{}
