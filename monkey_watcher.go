@@ -110,8 +110,9 @@ func myTrapHandler(packet *gosnmp.SnmpPacket, addr *net.UDPAddr) {
 			if strings.HasPrefix(v.Name, ".1.3.6.1.4.1.9.9.513.1.1.1.1.5.") {
 				// online
 				ap = string(v.Value.([]uint8))
+			} else {
+				log.Printf("extraneous trap: %+v\n", v)
 			}
-			log.Printf("trap: %+v\n", v)
 		}
 	}
 	if status != "" {
